@@ -1,7 +1,7 @@
 function [ zsc_asym,gcp_est,gcp_err,rho,rho_err,likelihood,p_fullcausal1,p_fullcausal2,asym_jk1,asym_jk2,s,s_err,intercept] = run_LCV_parallel( ell,Z1,Z2,crosstrait_intercept,ldsc_intercept,weights,sig_threshold,...
     no_blocks,cross_int,n1,n2)
-%RUN_LCV_PARALLEL runs LCV on summary statistics for two traits.
-%Parallelizies jackknife blocks.
+%RUN_LCV_parallel runs LCV on summary statistics for two traits and
+%parallelizes across jackknife blocks.
 %   INPUT VARIBLES: ell, Mx1 vector of LD scores; Z1, Mx1 vector of
 %   estimated marginal per-normalized-genotype effects on trait 1
 %   (or Z scores; invariant to scaling); Z2, Mx2 vector of effects on trait
@@ -34,7 +34,7 @@ grid=-1:.01:1;
 
 %% Estimate mixed 4th moments for each jackknife block
 intercept_jk=zeros(no_blocks,1);asym_jk1=zeros(no_blocks,1);asym_jk2=asym_jk1;rho_jk=asym_jk1;s1jk=rho_jk;s2jk=rho_jk;
-blocksize=floor(length(Z1)/no_blocks);
+blocksize=floor(length(Z1)/no_blocks);intercept1_jk=rho_jk;intercept2_jk=rho_jk;
 
 if ldsc_intercept
     parfor jk=1:no_blocks
@@ -46,7 +46,7 @@ if ldsc_intercept
 else
     parfor jk=1:no_blocks
         ind=[1:(jk-1)*blocksize, jk*blocksize+1:length(Z1)];
-        [ rho_jk(jk),asym_jk1(jk),asym_jk2(jk),intercept_jk(jk),s1jk(jk),s2jk(jk)] = ...
+        [ rho_jk(jk),asym_jk1(jk),asym_jk2(jk),intercept_jk(jk),s1jk(jk),s2jk(jk),intercept1_jk(jk),intercept2_jk(jk)] = ...
             estimate_k4( ell(ind,:),Z1(ind),Z2(ind),crosstrait_intercept,ldsc_intercept,weights(ind),sig_threshold,n1,n2,cross_int  );
     end
 end
@@ -66,7 +66,7 @@ asym_jk2=asym_jk2-3*rho_jk;
 likelihood=zeros(1,length(grid));
 for kk=1:length(grid) % Loop over possible gcp values
     xx=grid(kk);
-    fx=abs(rho_jk).^(xx);
+    fx=abs(rho_jk).^(-xx);
     numer=asym_jk1./fx-fx.*asym_jk2;
     denom=max(1./abs(rho_jk),sqrt(asym_jk1.^2./fx.^2+fx.^2.*asym_jk2.^2));
     pct_diff_jk=numer./denom;% S(xx) statistic for each jackknife block
@@ -74,9 +74,9 @@ for kk=1:length(grid) % Loop over possible gcp values
     
     likelihood(kk)=tpdf(real(mean(pct_diff_jk)/est_err),no_blocks-2);
     if kk==1 % test for gcp=-1
-        p_fullcausal1=tcdf(real(mean(pct_diff_jk)/est_err),no_blocks-2);
+        p_fullcausal1=tcdf((mean(pct_diff_jk)/est_err),no_blocks-2);
     elseif kk==length(grid) % test for gcp=1
-        p_fullcausal2=tcdf(real(mean(pct_diff_jk)/est_err),no_blocks-2,'upper');
+        p_fullcausal2=tcdf(-(mean(pct_diff_jk)/est_err),no_blocks-2);
     elseif xx==0 % test for gcp=0
         zsc_asym=mean(pct_diff_jk)/est_err;
     end

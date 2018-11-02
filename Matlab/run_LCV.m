@@ -65,17 +65,17 @@ asym_jk2=asym_jk2-3*rho_jk;
 likelihood=zeros(1,length(grid));
 for kk=1:length(grid) % Loop over possible gcp values
     xx=grid(kk);
-    fx=abs(rho_jk).^(xx);
-    numer=asym_jk2./fx-fx.*asym_jk1;
-    denom=max(1./abs(rho_jk),sqrt(asym_jk2.^2./fx.^2+fx.^2.*asym_jk1.^2));
+    fx=abs(rho_jk).^(-xx);
+    numer=asym_jk1./fx-fx.*asym_jk2;
+    denom=max(1./abs(rho_jk),sqrt(asym_jk1.^2./fx.^2+fx.^2.*asym_jk2.^2));
     pct_diff_jk=numer./denom;% S(xx) statistic for each jackknife block
     est_err=std(pct_diff_jk)*sqrt(no_blocks+1); % std err of S(xx)
     
     likelihood(kk)=tpdf(real(mean(pct_diff_jk)/est_err),no_blocks-2);
     if kk==1 % test for gcp=-1
-        p_fullcausal1=tcdf(real(mean(pct_diff_jk)/est_err),no_blocks-2);
+        p_fullcausal1=tcdf((mean(pct_diff_jk)/est_err),no_blocks-2);
     elseif kk==length(grid) % test for gcp=1
-        p_fullcausal2=tcdf(real(mean(pct_diff_jk)/est_err),no_blocks-2,'upper');
+        p_fullcausal2=tcdf(-(mean(pct_diff_jk)/est_err),no_blocks-2);
     elseif xx==0 % test for gcp=0
         zsc_asym=mean(pct_diff_jk)/est_err;
     end

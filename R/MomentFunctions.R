@@ -1,6 +1,6 @@
 # Weighted regression of y on X with weights w
 WeightedRegression <- function(X,y,w=array(1,length(y),1) ){
-  beta<-solve((t(X)%*%diag(w)%*%X),(t(X)%*%diag(w)%*%y))
+  beta<-solve(((t(X)*w)%*%X),((t(X)*w)%*%y))
   return(beta)
 }
 

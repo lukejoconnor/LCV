@@ -18,7 +18,7 @@ function [ zsc_asym,gcp_est,gcp_err,rho,rho_err,likelihood,p_fullcausal1,p_fullc
 %   crosstrait_intercept=2 (if zero, equivalent to setting
 %   crosstrait_intercept=0).
 %   OUTPUT VARIABLES: zsc_asym, Z score for partial genetic causality;
-%   gcp_est, posterior mean gcp; gcp_err, posterior standard dev; rho, \
+%   gcp_est, posterior mean gcp; gcp_err, posterior standard dev; rho, 
 %   estimated genetic correlation; rho_err, standard error of rho estimate;
 %   CI_pval, approx likelihood for gcp on [-1:.01:1]; p_fullcausal1,
 %   p-value for null that gcp=-1; p_fullcausal2, p-value for null that

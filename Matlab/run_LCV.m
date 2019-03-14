@@ -1,4 +1,4 @@
-function [ zsc_asym,gcp_est,gcp_err,rho,rho_err,likelihood,p_fullcausal1,p_fullcausal2,asym_jk1,asym_jk2,s,s_err,intercept] = run_LCV( ell,Z1,Z2,crosstrait_intercept,ldsc_intercept,weights,sig_threshold,...
+function LCVout = run_LCV( ell,Z1,Z2,crosstrait_intercept,ldsc_intercept,weights,sig_threshold,...
     no_blocks,cross_int,n1,n2)
 %RUN_LCV runs LCV on summary statistics for two traits.
 %   INPUT VARIBLES: ell, Mx1 vector of LD scores; Z1, Mx1 vector of
@@ -28,6 +28,49 @@ function [ zsc_asym,gcp_est,gcp_err,rho,rho_err,likelihood,p_fullcausal1,p_fullc
 %   1x3 vector containing trait 1 LDSC intercept, trait 2 LDSC intercept
 %   and crosstrait intercept respectively.
 
+if nargin<3
+    error('Please provide at least 3 input arguments: LD scores and Z scores or effect-size estimates for each trait')
+end
+[mm,kk]=size(ell);
+if kk~=1
+    error('LD scores should be an Mx1 vector')
+end
+[m2,kk]=size(Z1);
+if kk~=1 || m2~=mm
+    error('Z scores should be Mx1 vectors')
+end
+[m2,kk]=size(Z2);
+if kk~=1 || m2~=mm
+    error('Z scores should be Mx1 vectors')
+end
+
+if ~exist('crosstrait_intercept')
+    crosstrait_intercept=1;
+end
+
+if ~exist('ldsc_intercept')
+    ldsc_intercept=1;
+end
+
+if ~exist('weights')
+    weights=1./max(1,ell);
+end
+
+if ~exist('sig_threshold')
+    sig_threshold=inf; %Set to e.g. 30 in order to exclude GWS SNPs when computing LDSC intercept
+end
+
+if ~exist('no_blocks')
+    no_blocks=100;
+end
+
+if ~exist('n1') && ldsc_intercept==0 
+    n1=1;
+end
+
+if ~exist('n2') && ldsc_intercept==0 
+    n2=1;
+end
 
 grid=-1:.01:1;
 
@@ -53,6 +96,7 @@ intercept=[mean(intercept1_jk) mean(intercept2_jk) mean(intercept_jk)];
 
 rho=mean((rho_jk));
 rho_err=std((rho_jk))*sqrt(no_blocks+1);
+flip=sign(rho);
 
 s=[mean((s1jk)), mean((s2jk))];
 s_err=[std((s1jk)), std((s2jk))]*sqrt(no_blocks+1);
@@ -73,13 +117,16 @@ for kk=1:length(grid) % Loop over possible gcp values
     
     likelihood(kk)=tpdf(real(mean(pct_diff_jk)/est_err),no_blocks-2);
     if kk==1 % test for gcp=-1
-        p_fullcausal1=tcdf((mean(pct_diff_jk)/est_err),no_blocks-2);
+        p_fullcausal2=tcdf(-flip*(mean(pct_diff_jk)/est_err),no_blocks-2);
     elseif kk==length(grid) % test for gcp=1
-        p_fullcausal2=tcdf(-(mean(pct_diff_jk)/est_err),no_blocks-2);
+        p_fullcausal1=tcdf(flip*(mean(pct_diff_jk)/est_err),no_blocks-2);
     elseif xx==0 % test for gcp=0
-        zsc_asym=mean(pct_diff_jk)/est_err;
+        zsc_asym=flip*mean(pct_diff_jk)/est_err;
+        
     end
 end
+
+p_gcpzero_2tailed=tcdf(-abs(zsc_asym),no_blocks-2)*2;
 
 gcp_est=sum(likelihood.*grid)./sum(likelihood); % posterior mean
 gcp_err=sqrt(sum(likelihood.*grid.^2)./sum(likelihood)-gcp_est.^2); % posterior err
@@ -95,8 +142,18 @@ end
 
 % Warning for non-significant rho_g
 if abs(rho/rho_err)<2
-    warning('No significantly nonzero genetic correlation, potentially leading to conservative p-values and difficulties in interpretation')
+    warning('No significantly nonzero genetic correlation, potentially leading to conservative p-values')
 end
+
+LCVout(1).zscore=zsc_asym;
+LCVout(1).pval_gcpzero_2tailed=p_gcpzero_2tailed;
+LCVout(1).gcp_pm=gcp_est;
+LCVout(1).gcp_pse=gcp_err;
+LCVout(1).rho_est=rho;
+LCVout(1).rho_err=rho_err;
+LCVout(1).pval_fullycausal=[p_fullcausal1 p_fullcausal2];
+LCVout(1).h2_zscore=s./s_err;
+LCVout(1).likelihood=likelihood;
 
 end
 

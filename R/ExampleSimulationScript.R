@@ -50,7 +50,6 @@ alpha<-SimulateLCV(M,N.1,N.2,h2.1,h2.2,q.1,q.2,p.pi,p.g1,p.g2)
 
 LCV<- RunLCV(ell,alpha$a1,alpha$a2,no.blocks,crosstrait.intercept,ldsc.intercept,weights,sig.threshold,N.1,N.2,intercept.12)
 
-logpval.1tail<-pt(LCV$zscore,no.blocks-2,log.p=1)
 
-sprintf("Estimated posterior gcp=%.2f(%.2f), log10(p)=%.1f;\n estimated rho=%.2f(%.2f)\n",LCV$gcp.pm, LCV$gcp.pse, logpval.1tail/log(10), LCV$rho.est, LCV$rho.err)
+sprintf("Estimated posterior gcp=%.2f(%.2f), log10(p)=%.1f; estimated rho=%.2f(%.2f)",LCV$gcp.pm, LCV$gcp.pse, log(LCV$pval.gcpzero.2tailed)/log(10), LCV$rho.est, LCV$rho.err)
 

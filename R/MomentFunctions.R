@@ -1,6 +1,6 @@
 # Weighted regression of y on X with weights w
 WeightedRegression <- function(X,y,w=array(1,length(y),1) ){
-  beta<-solve(((t(X)*w)%*%X),((t(X)*w)%*%y))
+  beta<-solve(t(X*w)%*%X,t(X*w)%*%y)
   return(beta)
 }
 
@@ -39,8 +39,7 @@ EstimateK4 <-function(ell,z.1,z.2,crosstrait.intercept=1,ldsc.intercept=1,weight
     temp<-WeightedRegression(ell,z.2^2-intercept.2,weights);
     h2g.2<-temp[1];  
   }  
-  
-  
+
   # Cross-trait LDSC regression
   if(crosstrait.intercept==0) {
     temp<-WeightedRegression(ell,z.1*z.2-intercept.12,weights)

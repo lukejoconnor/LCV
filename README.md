@@ -52,3 +52,6 @@ Reference:
 O'Connor, L.J. and A.L. Price. "Distinguishing genetic correlation from causation across 52 diseases and complex traits." Nature genetics (2018).
 
 Non-paywalled link: https://rdcu.be/bajzC
+
+Contact:
+loconnor@broadinstitute.org

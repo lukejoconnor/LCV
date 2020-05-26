@@ -13,7 +13,7 @@ d2 = na.omit(read.table(gzfile(trait2File),header=TRUE,sep="\t",stringsAsFactors
 
 #Load LD scores
 ldscoresFile="".../unannotated_LDscores.l2.ldsc""
-d3=read.table("~/Dropbox/MR/Katie/NoAnnot.l2.ldsc",header=TRUE,sep=' ',stringsAsFactors=FALSE)
+d3=read.table(ldscoresFile,header=TRUE,sep=' ',stringsAsFactors=FALSE)
 
 #Merge
 m = merge(d3,d1,by="SNP")

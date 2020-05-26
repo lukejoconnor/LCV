@@ -1,7 +1,7 @@
 # LCV (Latent Causal Variable model)
 LCV is a method for inferring genetically causal relationships using GWAS data.
 
-LCV is implemented in Matlab and R. In order to run LCV, you will need LD scores (non-stratified, with ancestry matching your GWAS data), which can be downloaded [here] (https://data.broadinstitute.org/alkesgroup/LDSCORE/). You can also compute your own LD scores using the [LDSC software](https://github.com/bulik/ldsc). You will also need signed summary statistics: either effect size estimates (in units of per-normalized-genotype effect size) or Z scores.
+LCV is implemented in Matlab and R. In order to run LCV, you will need LD scores (non-stratified, with ancestry matching your GWAS data), which can be downloaded [here](https://data.broadinstitute.org/alkesgroup/LDSCORE/). You can also compute your own LD scores using the [LDSC software](https://github.com/bulik/ldsc). You will also need signed summary statistics: either effect size estimates (in units of per-normalized-genotype effect size) or Z scores.
 
 Usage of each function is described within the source code. There are example simulation scripts in Matlab and R, and an example script to run on real data in R.
 

@@ -20,7 +20,7 @@ m = merge(d3,d1,by="SNP")
 data = merge(m,d2,by="SNP")
 
 #Sort by position 
-data = m2[order(m2[,"CHR"],m2[,"BP"]),]
+data = data[order(data[,"CHR"],data[,"BP"]),]
 
 #Flip sign of one z-score if opposite alleles-shouldn't occur with UKB data
 #If not using munged data, will have to check that alleles match-not just whether they're opposite A1/A2
